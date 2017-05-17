@@ -1,30 +1,40 @@
-from flask import Flask, request, render_template, redirect, session
+from flask import Flask, request, render_template, redirect, session, flash
 from mysqlconnection import MySQLConnector
+import re
+EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
 
 app = Flask(__name__)
-mysql = MySQLConnector(app, 'all_friends')
+mysql = MySQLConnector(app, 'email_validation')
+app.secret_key = "ThisIsSecret!"
 
 @app.route('/')
 def index():
-    friends = mysql.query_db("select id, name, age, friend_since from friends")
+    emails = mysql.query_db("select id, email, date from emails")
 
 
-    return render_template('index.html', friends=friends)
+    return render_template('index.html', emails=emails)
 
 @app.route('/create', methods=["POST"])
 def create():
-    query = "insert into friends (name, age, friend_since) values (:name, :age, :friend_since)"
+    query = "insert into emails (email, date) values (:email, now())"
 
     data = {
-        'name': request.form["name"],
-        'age': request.form["age"],
-        'friend_since': request.form["friend_since"]
+        'email': request.form["email"],
     }
 
-    result = mysql.query_db(query, data)
+    if len(request.form['email']) < 1:
+        flash("Email cannot be blank!")
+    elif not EMAIL_REGEX.match(request.form['email']):
+        flash("Invalid Email Address!")
+    else:
+        flash("Success!")
+        result = mysql.query_db(query, data)
+    return redirect('/')
+
+
+
 
     print result
 
-    return redirect('/')
 
 app.run(debug=True)
