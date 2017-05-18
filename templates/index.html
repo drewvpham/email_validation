@@ -1,8 +1,33 @@
 <html>
 <head>
-    <title>Index Page</title>
+    <title>Login and Register</title>
 </head>
 <body>
+  <h2>Register</h2>
+
+  {% with messages = get_flashed_messages()[0] %}
+    {%if messages %}
+      {% for message in messages%}
+        {{ message }}
+      {%endfor%}
+    {%endif%}
+  {%endwith%}
+
+  <form action='register' method='post'>
+      <label>First Name</label>
+      <input type='text' name='first_name'>
+      <label>Last Name</label>
+      <input type='text' name='last_name'>
+      <label>Email</label>
+      <input type='email' name='email'>
+      <label>Password</label>
+      <input type='password' name='password'>
+      <label>Confirm Password</label>
+      <input type='password' name='password_confirmation'>
+      <input type='submit' value='Register'
+  </form>
+
+
     <h1>Enter a Valid Email!</h1>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
